@@ -1,0 +1,14 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "File manager using Node.js APIs",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Dmitriy3305",
+  "license": "ISC"
+}
