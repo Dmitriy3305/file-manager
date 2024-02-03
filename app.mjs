@@ -22,4 +22,18 @@ export class App {
       throw new Error("Directory does not exist");
     }
   }
+  ls() {
+    let filesAndDirectorys = fs.readdirSync(this.currentDirectory);
+    filesAndDirectorys.sort();
+    let filesAndDirectorysData = filesAndDirectorys.map((name) => {
+      let fullPath = path.join(this.currentDirectory, name);
+      let stats = fs.statSync(fullPath);
+      return {
+        Name: name,
+        Type: stats.isFile() ? "file" : "directory",
+      };
+    });
+
+    console.table(filesAndDirectorysData);
+  }
 }

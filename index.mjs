@@ -54,6 +54,9 @@ const runCommand = (command) => {
           throw new Error('No path specified for "cd" command');
         }
         break;
+      case "ls":
+        app.ls();
+        break;
       default:
         console.error("Invalid input");
         break;
