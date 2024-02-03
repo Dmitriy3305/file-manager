@@ -46,6 +46,14 @@ const runCommand = (command) => {
         app.up();
         currentDirectory = app.currentDirectory;
         break;
+      case "cd":
+        if (args.length > 0) {
+          app.cd(args.join(" "));
+          currentDirectory = app.currentDirectory;
+        } else {
+          throw new Error('No path specified for "cd" command');
+        }
+        break;
       default:
         console.error("Invalid input");
         break;
