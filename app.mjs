@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { createReadStream } from "fs";
+import { createReadStream, createWriteStream } from "fs";
 
 export class App {
   constructor(currentDirectory) {
@@ -97,5 +97,16 @@ export class App {
     const newPath = path.resolve(this.currentDirectory, newName);
 
     fs.rename(oldPath, newPath, callback);
+  }
+
+  cp(srcPath, destDir, callback) {
+    this.currentDirectory = path.dirname(srcPath);
+    let sourceFullPath = path.resolve(this.currentDirectory, srcPath);
+    let destFullPath = path.resolve(destDir, path.basename(srcPath));
+    const readStream = createReadStream(sourceFullPath);
+    const writeStream = createWriteStream(destFullPath);
+    this.currentDirectory = destDir;
+    readStream.pipe(writeStream);
+    callback(null);
   }
 }

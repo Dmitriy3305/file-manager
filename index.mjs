@@ -97,6 +97,17 @@ const runCommand = (command) => {
         );
       }
       break;
+    case "cp":
+      if (args.length >= 2) {
+        app.cp(args[0], args[1], handleCommandCompletion);
+      } else {
+        handleCommandCompletion(
+          new Error(
+            'The "cp" command requires two arguments: path to file and path to new directory'
+          )
+        );
+      }
+      break;
     default:
       console.error("Invalid input");
       handleCommandCompletion();
