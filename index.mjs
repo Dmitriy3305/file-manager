@@ -35,61 +35,72 @@ const printCurrentDirectory = () => {
   console.log(`You are currently in ${app.currentDirectory}`);
 };
 
+const handleCommandCompletion = (error) => {
+  if (error) {
+    console.error(`Operation failed: ${error.message}`);
+  }
+  printCurrentDirectory();
+  rl.prompt();
+};
+
 const runCommand = (command) => {
   const [cmd, ...args] = command.trim().split(" ");
-  try {
-    switch (cmd) {
-      case ".exit":
-        process.exit();
-        break;
-      case "up":
-        app.up();
-        currentDirectory = app.currentDirectory;
-        printCurrentDirectory();
-        rl.prompt();
-        break;
-      case "cd":
-        if (args.length > 0) {
-          app.cd(args.join(" "));
-          currentDirectory = app.currentDirectory;
-        } else {
-          throw new Error('No path specified for "cd" command');
-        }
-        printCurrentDirectory();
-        rl.prompt();
-        break;
-      case "ls":
-        app.ls();
-        printCurrentDirectory();
-        rl.prompt();
-        break;
-      case "cat":
+  switch (cmd) {
+    case ".exit":
+      process.exit();
+      break;
+    case "up":
+      app.up();
+      handleCommandCompletion();
+      break;
+    case "cd":
+      if (args.length > 0) {
+        app.cd(args.join(" "), handleCommandCompletion);
+      } else {
+        handleCommandCompletion(
+          new Error('No path specified for "cd" command')
+        );
+      }
+      break;
+    case "ls":
+      app.ls(handleCommandCompletion);
+      break;
+    case "cat":
+      if (args.length > 0) {
         app.cat(args[0], () => {
           console.log("");
-          printCurrentDirectory();
-          rl.prompt();
+          handleCommandCompletion();
         });
-        break;
-      case "add":
-        app.add(args[0]);
-        printCurrentDirectory();
-        rl.prompt();
-        break;
-      case "rn":
-        app.rn(args[0], args[1]);
-        printCurrentDirectory();
-        rl.prompt();
-        break;
-      default:
-        console.error("Invalid input");
-        printCurrentDirectory();
-        rl.prompt();
-        break;
-    }
-  } catch (error) {
-    console.error("Operation failed:", error.message);
-    printCurrentDirectory();
-    rl.prompt();
+      } else {
+        handleCommandCompletion(
+          new Error('No file specified for "cat" command')
+        );
+      }
+      break;
+    case "add":
+      if (args.length > 0) {
+        app.add(args[0], handleCommandCompletion);
+      } else {
+        handleCommandCompletion(
+          new Error('No filename specified for "add" command')
+        );
+      }
+      break;
+    case "rn":
+      if (args.length >= 2) {
+        app.rn(args[0], args[1], handleCommandCompletion);
+      } else {
+        handleCommandCompletion(
+          new Error(
+            'The "rn" command requires two arguments: the old name and the new name'
+          )
+        );
+      }
+      break;
+    default:
+      console.error("Invalid input");
+      handleCommandCompletion();
+      break;
   }
 };
 

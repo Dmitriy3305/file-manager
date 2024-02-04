@@ -6,64 +6,96 @@ export class App {
   constructor(currentDirectory) {
     this.currentDirectory = currentDirectory;
   }
+
   up() {
     this.currentDirectory = path.dirname(this.currentDirectory);
     console.log(this.currentDirectory);
-    return this.currentDirectory;
   }
-  cd(newPath) {
-    let newPathAbsolute = path.resolve(this.currentDirectory, newPath);
-    if (
-      fs.existsSync(newPathAbsolute) &&
-      fs.statSync(newPathAbsolute).isDirectory()
-    ) {
-      this.currentDirectory = newPathAbsolute;
-      return this.currentDirectory;
-    } else {
-      throw new Error("Directory does not exist");
-    }
-  }
-  ls() {
-    let filesAndDirectorys = fs.readdirSync(this.currentDirectory);
-    filesAndDirectorys.sort();
-    let filesAndDirectorysData = filesAndDirectorys.map((name) => {
-      let fullPath = path.join(this.currentDirectory, name);
-      let stats = fs.statSync(fullPath);
-      return {
-        Name: name,
-        Type: stats.isFile() ? "file" : "directory",
-      };
-    });
 
-    console.table(filesAndDirectorysData);
+  cd(newPath, callback) {
+    const newPathAbsolute = path.resolve(this.currentDirectory, newPath);
+    fs.stat(newPathAbsolute, (err, stats) => {
+      if (err) {
+        callback(err);
+      } else if (stats.isDirectory()) {
+        this.currentDirectory = newPathAbsolute;
+        callback(null, this.currentDirectory);
+      } else {
+        callback(new Error("Directory does not exist"));
+      }
+    });
   }
+
+  ls(callback) {
+    fs.readdir(
+      this.currentDirectory,
+      { withFileTypes: true },
+      (err, filesAndDirectorys) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        const results = filesAndDirectorys.map((dirent) => ({
+          Name: dirent.name,
+          Type: dirent.isFile() ? "file" : "directory",
+        }));
+
+        results.sort((a, b) => {
+          if (a.Type === b.Type) {
+            return a.Name.localeCompare(b.Name);
+          }
+          return a.Type === "directory" ? -1 : 1;
+        });
+
+        console.table(results);
+        callback(null, results);
+      }
+    );
+  }
+
   cat(filePath, callback) {
     const fullFilePath = path.resolve(this.currentDirectory, filePath);
-    if (fs.existsSync(fullFilePath) && fs.statSync(fullFilePath).isFile()) {
+    this.currentDirectory = path.dirname(fullFilePath);
+    fs.stat(fullFilePath, (err, stats) => {
+      if (err || !stats.isFile()) {
+        callback(new Error("File does not exist"));
+        return;
+      }
+
       const stream = createReadStream(fullFilePath);
-      stream.on("data", (chunk) => {
-        process.stdout.write(chunk);
+      stream.pipe(process.stdout);
+      stream.on("end", callback);
+      stream.on("error", (streamErr) => {
+        console.error(`Error reading file: ${streamErr.message}`);
+        callback(streamErr);
       });
-      this.currentDirectory = path.dirname(fullFilePath);
-      stream.on("end", () => {
-        callback();
-      });
-      stream.on("error", (err) => {
-        console.error(`Error reading file: ${err.message}`);
-        callback();
-      });
-    } else {
-      throw new Error("File does not exist");
-    }
+    });
   }
-  add(filename) {
-    let fullPath = path.join(this.currentDirectory, filename);
-    fs.closeSync(fs.openSync(fullPath, "w"));
+
+  add(filename, callback) {
+    const fullPath = path.join(this.currentDirectory, filename);
+    fs.open(fullPath, "w", (err, fd) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      fs.close(fd, (closeErr) => {
+        if (closeErr) {
+          callback(closeErr);
+          return;
+        }
+        callback(null);
+      });
+    });
   }
-  rn(oldName, newName) {
+
+  rn(oldName, newName, callback) {
     this.currentDirectory = path.dirname(oldName);
-    let oldPath = path.resolve(this.currentDirectory, oldName);
-    let newPath = path.resolve(this.currentDirectory, newName);
-    fs.renameSync(oldPath, newPath);
+    const oldPath = path.resolve(this.currentDirectory, oldName);
+    const newPath = path.resolve(this.currentDirectory, newName);
+
+    fs.rename(oldPath, newPath, callback);
   }
 }
