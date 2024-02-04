@@ -13,7 +13,6 @@ if (!usernameArg) {
 }
 
 const username = usernameArg.split("=")[1];
-
 console.log(`Welcome to the File Manager, ${username}!`);
 
 const app = new App(currentDirectory);
@@ -42,9 +41,12 @@ const runCommand = (command) => {
     switch (cmd) {
       case ".exit":
         process.exit();
+        break;
       case "up":
         app.up();
         currentDirectory = app.currentDirectory;
+        printCurrentDirectory();
+        rl.prompt();
         break;
       case "cd":
         if (args.length > 0) {
@@ -53,23 +55,36 @@ const runCommand = (command) => {
         } else {
           throw new Error('No path specified for "cd" command');
         }
+        printCurrentDirectory();
+        rl.prompt();
         break;
       case "ls":
         app.ls();
+        printCurrentDirectory();
+        rl.prompt();
+        break;
+      case "cat":
+        app.cat(args[0], () => {
+          console.log("");
+          printCurrentDirectory();
+          rl.prompt();
+        });
         break;
       default:
         console.error("Invalid input");
+        printCurrentDirectory();
+        rl.prompt();
         break;
     }
   } catch (error) {
     console.error("Operation failed:", error.message);
+    printCurrentDirectory();
+    rl.prompt();
   }
 };
 
 rl.on("line", (line) => {
   runCommand(line);
-  printCurrentDirectory();
-  rl.prompt();
 }).on("close", () => {
   process.exit();
 });

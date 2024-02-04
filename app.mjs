@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import { createReadStream } from "fs";
 
 export class App {
   constructor(currentDirectory) {
@@ -35,5 +36,24 @@ export class App {
     });
 
     console.table(filesAndDirectorysData);
+  }
+  cat(filePath, callback) {
+    const fullFilePath = path.resolve(this.currentDirectory, filePath);
+    if (fs.existsSync(fullFilePath) && fs.statSync(fullFilePath).isFile()) {
+      const stream = createReadStream(fullFilePath);
+      stream.on("data", (chunk) => {
+        process.stdout.write(chunk);
+      });
+      this.currentDirectory = path.dirname(fullFilePath);
+      stream.on("end", () => {
+        callback();
+      });
+      stream.on("error", (err) => {
+        console.error(`Error reading file: ${err.message}`);
+        callback();
+      });
+    } else {
+      throw new Error("File does not exist");
+    }
   }
 }
