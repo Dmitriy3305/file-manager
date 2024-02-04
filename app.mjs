@@ -60,4 +60,10 @@ export class App {
     let fullPath = path.join(this.currentDirectory, filename);
     fs.closeSync(fs.openSync(fullPath, "w"));
   }
+  rn(oldName, newName) {
+    this.currentDirectory = path.dirname(oldName);
+    let oldPath = path.resolve(this.currentDirectory, oldName);
+    let newPath = path.resolve(this.currentDirectory, newName);
+    fs.renameSync(oldPath, newPath);
+  }
 }

@@ -75,6 +75,11 @@ const runCommand = (command) => {
         printCurrentDirectory();
         rl.prompt();
         break;
+      case "rn":
+        app.rn(args[0], args[1]);
+        printCurrentDirectory();
+        rl.prompt();
+        break;
       default:
         console.error("Invalid input");
         printCurrentDirectory();
