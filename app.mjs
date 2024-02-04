@@ -56,4 +56,8 @@ export class App {
       throw new Error("File does not exist");
     }
   }
+  add(filename) {
+    let fullPath = path.join(this.currentDirectory, filename);
+    fs.closeSync(fs.openSync(fullPath, "w"));
+  }
 }
