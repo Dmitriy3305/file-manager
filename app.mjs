@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { createReadStream, createWriteStream } from "fs";
+import { createReadStream, createWriteStream, unlink } from "fs";
 
 export class App {
   constructor(currentDirectory) {
@@ -108,5 +108,28 @@ export class App {
     this.currentDirectory = destDir;
     readStream.pipe(writeStream);
     callback(null);
+  }
+
+  mv(srcPath, destDir, callback) {
+    this.currentDirectory = path.dirname(srcPath);
+    let sourceFullPath = path.resolve(this.currentDirectory, srcPath);
+    let destFullPath = path.resolve(destDir, path.basename(srcPath));
+    const readStream = createReadStream(sourceFullPath);
+    const writeStream = createWriteStream(destFullPath);
+    this.currentDirectory = destDir;
+    writeStream.on("finish", () => {
+      fs.unlink(sourceFullPath, (err) => {
+        if (err) {
+          return callback(err);
+        }
+        callback(null);
+      });
+    });
+    readStream.pipe(writeStream);
+  }
+
+  rm(filePath, callback) {
+    let fullPath = path.resolve(this.currentDirectory, filePath);
+    fs.unlink(fullPath, callback);
   }
 }

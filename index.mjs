@@ -107,6 +107,25 @@ const runCommand = (command) => {
           )
         );
       }
+    case "mv":
+      if (args.length >= 2) {
+        app.mv(args[0], args[1], handleCommandCompletion);
+      } else {
+        handleCommandCompletion(
+          new Error(
+            'The "mv" command requires two arguments: path to file and path to new directory'
+          )
+        );
+      }
+      break;
+    case "rm":
+      if (args.length) {
+        app.rm(args[0], handleCommandCompletion);
+      } else {
+        handleCommandCompletion(
+          new Error('The "rm" command requires one argument: path to file')
+        );
+      }
       break;
     default:
       console.error("Invalid input");
