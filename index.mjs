@@ -1,6 +1,7 @@
 import os from "os";
 import { App } from "./src/app.mjs";
 import readline from "readline";
+import errors from "./src/utils/const/errors.mjs";
 
 const homeDirectory = os.homedir();
 let currentDirectory = homeDirectory;
@@ -8,7 +9,7 @@ const args = process.argv.slice(2);
 const usernameArg = args.find((arg) => arg.startsWith("--username="));
 
 if (!usernameArg) {
-  console.error("Please provide --username argument.");
+  console.error(`Operation failed: ${errors.USERNAME_REQUIRED}`);
   process.exit(1);
 }
 
@@ -48,7 +49,6 @@ const runCommand = (command) => {
   switch (cmd) {
     case ".exit":
       process.exit();
-      break;
     case "up":
       app.up();
       handleCommandCompletion();
@@ -57,9 +57,7 @@ const runCommand = (command) => {
       if (args.length > 0) {
         app.cd(args.join(" "), handleCommandCompletion);
       } else {
-        handleCommandCompletion(
-          new Error('No path specified for "cd" command')
-        );
+        handleCommandCompletion(new Error(errors.PATH_REQUIRED_FOR_CD));
       }
       break;
     case "ls":
@@ -72,18 +70,14 @@ const runCommand = (command) => {
           handleCommandCompletion();
         });
       } else {
-        handleCommandCompletion(
-          new Error('No file specified for "cat" command')
-        );
+        handleCommandCompletion(new Error(errors.FILE_REQUIRED_FOR_CAT));
       }
       break;
     case "add":
       if (args.length > 0) {
         app.add(args[0], handleCommandCompletion);
       } else {
-        handleCommandCompletion(
-          new Error('No filename specified for "add" command')
-        );
+        handleCommandCompletion(new Error(errors.FILENAME_REQUIRED_FOR_ADD));
       }
       break;
     case "rn":
@@ -91,9 +85,7 @@ const runCommand = (command) => {
         app.rn(args[0], args[1], handleCommandCompletion);
       } else {
         handleCommandCompletion(
-          new Error(
-            'The "rn" command requires two arguments: the old name and the new name'
-          )
+          new Error(errors.TWO_ARGUMENTS_REQUIRED_FOR_RN)
         );
       }
       break;
@@ -102,9 +94,7 @@ const runCommand = (command) => {
         app.cp(args[0], args[1], handleCommandCompletion);
       } else {
         handleCommandCompletion(
-          new Error(
-            'The "cp" command requires two arguments: path to file and path to new directory'
-          )
+          new Error(errors.TWO_ARGUMENTS_REQUIRED_FOR_CP)
         );
       }
     case "mv":
@@ -112,9 +102,7 @@ const runCommand = (command) => {
         app.mv(args[0], args[1], handleCommandCompletion);
       } else {
         handleCommandCompletion(
-          new Error(
-            'The "mv" command requires two arguments: path to file and path to new directory'
-          )
+          new Error(errors.TWO_ARGUMENTS_REQUIRED_FOR_MV)
         );
       }
       break;
@@ -122,15 +110,13 @@ const runCommand = (command) => {
       if (args.length) {
         app.rm(args[0], handleCommandCompletion);
       } else {
-        handleCommandCompletion(
-          new Error('The "rm" command requires one argument: path to file')
-        );
+        handleCommandCompletion(new Error(errors.PATH_REQUIRED_FOR_RM));
       }
       break;
     case "os":
       if (args.length === 0) {
         console.error("No option provided for 'os' command");
-        handleCommandCompletion(new Error("No option provided"));
+        handleCommandCompletion(new Error(errors.OPTION_REQUIRED_FOR_OS));
         return;
       }
       app.osInfo(args.join(" "));
@@ -138,29 +124,28 @@ const runCommand = (command) => {
       break;
     case "hash":
       if (args.length < 1) {
-        throw new Error("hash command requires a file path argument");
+        handleCommandCompletion(new Error(errors.PATH_REQUIRED_FOR_HASH));
       }
       app.hash(args[0], handleCommandCompletion);
       break;
     case "compress":
       if (args.length < 2) {
-        throw new Error(
-          "compress command requires source path and destination path arguments"
+        handleCommandCompletion(
+          new Error(errors.TWO_ARGUMENTS_REQUIRED_FOR_COMPRESS)
         );
       }
       app.compress(args[0], args[1], handleCommandCompletion);
       break;
-      case "decompress":
+    case "decompress":
       if (args.length < 2) {
-        throw new Error(
-          "decompress command requires source path and destination path arguments"
+        handleCommandCompletion(
+          new Error(errors.TWO_ARGUMENTS_REQUIRED_FOR_DECOMPRESS)
         );
       }
       app.decompress(args[0], args[1], handleCommandCompletion);
       break;
     default:
-      console.error("Invalid input");
-      handleCommandCompletion();
+      handleCommandCompletion(new Error(errors.INVALID_INPUT));
       break;
   }
 };
