@@ -150,6 +150,14 @@ const runCommand = (command) => {
       }
       app.compress(args[0], args[1], handleCommandCompletion);
       break;
+      case "decompress":
+      if (args.length < 2) {
+        throw new Error(
+          "decompress command requires source path and destination path arguments"
+        );
+      }
+      app.decompress(args[0], args[1], handleCommandCompletion);
+      break;
     default:
       console.error("Invalid input");
       handleCommandCompletion();
