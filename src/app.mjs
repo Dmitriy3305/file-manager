@@ -1,4 +1,5 @@
 import * as fsOperations from "./fs/fsOperations.mjs";
+import * as osOperations from "./os/osOperation.mjs";
 
 export class App {
   constructor(currentDirectory) {
@@ -45,5 +46,8 @@ export class App {
 
   rm(filePath, callback) {
     fsOperations.rm(this.currentDirectory, filePath, callback);
+  }
+  osInfo(option) {
+    osOperations.osInfo(option);
   }
 }

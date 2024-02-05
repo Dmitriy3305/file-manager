@@ -127,6 +127,15 @@ const runCommand = (command) => {
         );
       }
       break;
+    case "os":
+      if (args.length === 0) {
+        console.error("No option provided for 'os' command");
+        handleCommandCompletion(new Error("No option provided"));
+        return;
+      }
+      app.osInfo(args.join(" "));
+      handleCommandCompletion();
+      break;
     default:
       console.error("Invalid input");
       handleCommandCompletion();
