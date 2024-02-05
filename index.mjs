@@ -136,6 +136,12 @@ const runCommand = (command) => {
       app.osInfo(args.join(" "));
       handleCommandCompletion();
       break;
+    case "hash":
+      if (args.length < 1) {
+        throw new Error("hash command requires a file path argument");
+      }
+      app.hash(args[0], handleCommandCompletion);
+      break;
     default:
       console.error("Invalid input");
       handleCommandCompletion();

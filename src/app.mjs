@@ -1,5 +1,6 @@
 import * as fsOperations from "./fs/fsOperations.mjs";
 import * as osOperations from "./os/osOperation.mjs";
+import * as hash from "./hash/hash.mjs";
 
 export class App {
   constructor(currentDirectory) {
@@ -49,5 +50,8 @@ export class App {
   }
   osInfo(option) {
     osOperations.osInfo(option);
+  }
+  hash(filePath, callback) {
+    hash.getHash(this.currentDirectory, filePath, callback);
   }
 }
