@@ -1,5 +1,5 @@
 import os from "os";
-import { App } from "./app.mjs";
+import { App } from "./src/app.mjs";
 import readline from "readline";
 
 const homeDirectory = os.homedir();
