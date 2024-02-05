@@ -142,6 +142,14 @@ const runCommand = (command) => {
       }
       app.hash(args[0], handleCommandCompletion);
       break;
+    case "compress":
+      if (args.length < 2) {
+        throw new Error(
+          "compress command requires source path and destination path arguments"
+        );
+      }
+      app.compress(args[0], args[1], handleCommandCompletion);
+      break;
     default:
       console.error("Invalid input");
       handleCommandCompletion();

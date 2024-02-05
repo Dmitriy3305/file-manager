@@ -1,6 +1,7 @@
 import * as fsOperations from "./fs/fsOperations.mjs";
 import * as osOperations from "./os/osOperation.mjs";
 import * as hash from "./hash/hash.mjs";
+import * as compress from "./compress/compress.mjs";
 
 export class App {
   constructor(currentDirectory) {
@@ -53,5 +54,8 @@ export class App {
   }
   hash(filePath, callback) {
     hash.getHash(this.currentDirectory, filePath, callback);
+  }
+  compress(srcPath, destPath, callback) {
+    compress.getCompress(this.currentDirectory, srcPath, destPath, callback);
   }
 }
